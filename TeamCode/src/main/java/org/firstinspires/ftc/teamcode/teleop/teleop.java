@@ -1,3 +1,4 @@
+
 package org.firstinspires.ftc.teamcode.teleop;
 
 import com.pedropathing.drivetrain.DrivePowers;
@@ -16,10 +17,27 @@ public class teleop extends OpMode {
     @Override
     public void init() {
         follower = Constants.create(hardwareMap);
+
+        telemetry.addData("Follower initialized", follower != null);
+        telemetry.update();
     }
 
     @Override
     public void loop() {
+        if (follower == null) {
+            telemetry.addLine("ERROR: Follower is null");
+            telemetry.update();
+            return;
+        }
+
+        follower.update();
+
+        if (follower.pose() == null) {
+            telemetry.addLine("ERROR: Pose is null");
+            telemetry.update();
+            return;
+        }
+
         DrivePowers powers = ManualDrive.fieldCentric(
                 -gamepad1.left_stick_y,
                 gamepad1.left_stick_x,
@@ -28,6 +46,11 @@ public class teleop extends OpMode {
         );
 
         follower.manual(powers);
-        follower.update();
+
+        telemetry.addData(
+                "Heading (rad)",
+                follower.pose().heading()
+        );
+        telemetry.update();
     }
 }
